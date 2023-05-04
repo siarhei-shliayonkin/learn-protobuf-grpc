@@ -1,3 +1,19 @@
 syntax = "proto3";
-package learnprotobufgrpc;
+import "google/protobuf/empty.proto";
+
+package learn_protobuf_grpc;
 option go_package = "github.com/siarhei-shliayonkin/learn-protobuf-grpc";
+
+message Person {
+    string first_name = 1;
+    string last_name = 2;
+}
+
+message PersonList {
+    repeated Person person = 1;
+}
+
+service PersonService {
+    rpc Add (Person) returns (Person);
+    rpc List (google.protobuf.Empty) returns (PersonList);
+}
