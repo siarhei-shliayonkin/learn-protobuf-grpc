@@ -1,0 +1,3 @@
+syntax = "proto3";
+package learnprotobufgrpc;
+option go_package = "github.com/siarhei-shliayonkin/learn-protobuf-grpc";
