@@ -1,0 +1,32 @@
+syntax = "proto3";
+package person;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/proto;pb";
+
+
+message Person {
+    string first_name = 1;
+    string last_name = 2;
+}
+
+message PersonList {
+    repeated Person person = 1;
+}
+
+service PersonService {
+    rpc Add (Person) returns (Person) {
+        option (google.api.http) = {
+            post: "/v1/persons"
+            body: "*"
+        };
+    }
+
+    rpc List (google.protobuf.Empty) returns (PersonList) {
+        option (google.api.http) = {
+            get: "/v1/persons"
+        };
+    }
+}

@@ -8,6 +8,8 @@
 go install github.com/golang/protobuf/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 go get -u google.golang.org/grpc
+
+experimental: go get google.golang.org/genproto/...
 ```
 
 File: `./pkg/proto/example.proto`
