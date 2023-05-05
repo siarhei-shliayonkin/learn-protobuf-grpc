@@ -59,3 +59,36 @@ make proto
 │       ├── example.pb.go
 │       └── example.proto
 ```
+
+Implementation of the service
+
+```go
+// service is the server API for Service service.
+type service struct {
+ pb.PersonServiceServer
+}
+
+// NewService returns a new instance of the PersonServiceServer.
+func NewService() pb.PersonServiceServer {
+ return &service{}
+}
+```
+
+Starting gRPC server
+
+```go
+func startGrpcServer() {
+ grpcServer := grpc.NewServer()
+ pb.RegisterPersonServiceServer(grpcServer, person.NewService())
+
+ lis, err := net.Listen("tcp", port)
+ if err != nil {
+  log.Fatalf("failed to listen: %v", err)
+ }
+
+ log.Printf("Listening on %s", port)
+ if err := grpcServer.Serve(lis); err != nil {
+  log.Fatalf("failed to serve: %v", err)
+ }
+}
+```
