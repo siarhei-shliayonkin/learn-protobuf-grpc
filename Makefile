@@ -1,48 +1,17 @@
 SRC_DIR  := $(shell pwd)
-# PROJECT_ROOT ?= github.com/siarhei-shliayonkin/learn-protobuf-grpc
 PKG_LIST := ./pkg/...
 PROTO_DIR := pkg/proto
-APP_PERSON := ./cmd/person/...
+APP_SERVER := ./cmd/server/...
+# APP_CLIENT := ./cmd/client/...
 BIN_DIR := ./bin
-
-# PROTOC_PARAM = --go_out=plugins=grpc:. --grpc-gateway_out=logtostderr=true,allow_patch_feature=false,allow_delete_body=true:. -I $(SRC_DIR)/vendor --validate_out="lang=go:."
-# PROTOC_PARAM = \
-# 	--go_out=plugins=grpc:. \
-# 	--grpc-gateway_out=logtostderr=true,allow_patch_feature=false,allow_delete_body=true:. \
-# 	-I $(SRC_DIR)/vendor \
-# 	-I $(SRC_DIR)/$(PROTO_DIR) \
-# 	--validate_out="lang=go:."
-# PROTOC_PARAM := \
-#    --go_out . --go_opt paths=source_relative \
-#    --go-grpc_out . --go-grpc_opt paths=source_relative \
-#    --grpc-gateway_out . --grpc-gateway_opt paths=source_relative \
-#    --grpc-gateway_out=logtostderr=true
-
-# PROTOC_PARAM := \
-#    --go_out $(SRC_DIR)/$(PROTO_DIR)  \
-#    --go-grpc_out $(SRC_DIR)/$(PROTO_DIR) \
-#    --grpc-gateway_out $(SRC_DIR)/$(PROTO_DIR) \
-#    	-I $(SRC_DIR)/vendor \
-# 	-I $(SRC_DIR)/$(PROTO_DIR) \
-#    --grpc-gateway_out=logtostderr=true
 
 PROTOBUF_ARGS =	 -I=. -I=$(SRC_DIR)/vendor -I=$(GOPATH)/src/github.com/googleapis/googleapis
 PROTOBUF_ARGS += --go_out=. --go_opt paths=source_relative
 PROTOBUF_ARGS += --go-grpc_out=. --go-grpc_opt paths=source_relative
 PROTOBUF_ARGS += --grpc-gateway_out=. --grpc-gateway_opt paths=source_relative
-# PROTOBUF_ARGS += --go-grpc_opt require_unimplemented_servers=false
-# PROTOBUF_ARGS += --validate_out="lang=go:."
-# PROTOBUF_ARGS += --grpc-gateway_opt logtostderr=true,allow_delete_body=true
-# PROTOBUF_ARGS += --openapiv2_out=.
-# PROTOBUF_ARGS += --openapiv2_opt allow_delete_body=true,atlas_patch=true,json_names_for_fields=false
-
-
-# go install google.golang.org/protobuf/cmd/protoc-gen-go
-# go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-
 
 .PHONY: all
-all: vendor lint proto build
+all: proto vendor lint build
 
 # needs to install once for generating .proto with rpc option
 .PHONY: googleapis
@@ -75,8 +44,13 @@ bin:
 	@mkdir -p $(BIN_DIR)
 
 .PHONY: build
-build: bin person
+build: bin server
 
-.PHONY: person
-person:
-	@go build -o $(BIN_DIR)/person $(APP_PERSON)
+.PHONY: server
+server:
+	@echo "building server"
+	@go build -o $(BIN_DIR)/server $(APP_SERVER)
+
+.PHONY: test
+test:
+	go test -v ./cmd/server/...

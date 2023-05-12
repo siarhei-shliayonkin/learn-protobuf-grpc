@@ -12,14 +12,15 @@ go get -u google.golang.org/grpc
 experimental: go get google.golang.org/genproto/...
 ```
 
-File: `./pkg/proto/example.proto`
+File: `./pkg/proto/person.proto`
 
 ```proto
 syntax = "proto3";
+package person;
+
 import "google/protobuf/empty.proto";
 
-package learn_protobuf_grpc;
-option go_package = "github.com/siarhei-shliayonkin/learn-protobuf-grpc";
+option go_package = "github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/proto;pb";
 
 message Person {
     string first_name = 1;
@@ -31,8 +32,8 @@ message PersonList {
 }
 
 service PersonService {
-    rpc Add (Person) returns (Person);
-    rpc List (google.protobuf.Empty) returns (PersonList);
+    rpc Add (Person) returns (Person) {}
+    rpc List (google.protobuf.Empty) returns (PersonList) {}
 }
 ```
 
