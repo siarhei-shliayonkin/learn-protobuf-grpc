@@ -11,7 +11,7 @@ PROTOBUF_ARGS += --go-grpc_out=. --go-grpc_opt paths=source_relative
 PROTOBUF_ARGS += --grpc-gateway_out=. --grpc-gateway_opt paths=source_relative
 
 .PHONY: all
-all: proto vendor lint build
+all: proto vendor lint build test
 
 # needs to install once for generating .proto with rpc option
 .PHONY: googleapis
@@ -53,4 +53,7 @@ server:
 
 .PHONY: test
 test:
-	go test -v ./cmd/server/...
+	@echo "run tests"
+	@go test \
+		./cmd/server/... \
+		./pkg/...

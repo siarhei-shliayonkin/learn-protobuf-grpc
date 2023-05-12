@@ -49,7 +49,7 @@ proto:
   --go-grpc_opt=paths=source_relative \
   --go_out=$(PROTO_DIR) \
   --go-grpc_out=$(PROTO_DIR) \
-  example.proto
+  person.proto
 ```
 
 ```bash
@@ -58,9 +58,9 @@ make proto
 ...
 ├── pkg
 │   └── proto
-│       ├── example_grpc.pb.go
-│       ├── example.pb.go
-│       └── example.proto
+│       ├── person_grpc.pb.go
+│       ├── person.pb.go
+│       └── person.proto
 ```
 
 Implementation of the service
@@ -93,5 +93,23 @@ func startGrpcServer() {
  if err := grpcServer.Serve(lis); err != nil {
   log.Fatalf("failed to serve: %v", err)
  }
+}
+```
+
+Init gRPC client
+
+```go
+func initTestClient(srvAddress string) (pb.PersonServiceClient, *grpc.ClientConn) {
+ clientOptions := []grpc.DialOption{grpc.WithInsecure()}
+ clientConnection, err := grpc.DialContext(
+  context.Background(),
+  srvAddress,
+  clientOptions...,
+ )
+ if err != nil {
+  println("failed to init client connection: %v", err)
+  os.Exit(1)
+ }
+ return pb.NewPersonServiceClient(clientConnection), clientConnection
 }
 ```

@@ -8,16 +8,20 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/proto"
+	"github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/svc/storage"
 )
 
-// service is the server API for Service service.
+// service represents the gRPC server API for Person service.
 type service struct {
 	pb.PersonServiceServer
+	storageMap storage.Storage
 }
 
 // NewService returns a new instance of the PersonServiceServer.
 func NewService() pb.PersonServiceServer {
-	return &service{}
+	return &service{
+		storageMap: storage.New(),
+	}
 }
 
 // Add adds a new person to the service.
@@ -26,7 +30,8 @@ func NewService() pb.PersonServiceServer {
 // person: The person to add to the service.
 // returns: The added person and an error.
 func (s *service) Add(ctx context.Context, person *pb.Person) (*pb.Person, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	s.storageMap.Add(person.GetFirstName(), person.GetLastName())
+	return person, status.Error(codes.OK, "OK")
 }
 
 // List returns a list of persons.
@@ -34,5 +39,12 @@ func (s *service) Add(ctx context.Context, person *pb.Person) (*pb.Person, error
 // Takes a context and an empty protocol buffer as input.
 // Returns a PersonList protocol buffer and an error.
 func (s *service) List(ctx context.Context, empty *emptypb.Empty) (*pb.PersonList, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	l := s.storageMap.List()
+	pl := new(pb.PersonList)
+	pl.Person = make([]*pb.Person, 0, len(l))
+	for k, v := range l {
+		pl.Person = append(pl.Person, &pb.Person{FirstName: k, LastName: v})
+	}
+
+	return pl, status.Error(codes.OK, "OK")
 }
