@@ -18,10 +18,16 @@ message PersonRequest {
     string first_name = 1;
 }
 
+message StreamResponse {
+    string message = 1;
+}
 
 service PersonService {
     rpc Add (Person) returns (Person) {}
     rpc Get (PersonRequest) returns (Person) {}
     rpc List (google.protobuf.Empty) returns (PersonList) {}
     rpc Delete (PersonRequest) returns (google.protobuf.Empty) {}
+    // Streaming
+    rpc BulkAdd (stream Person) returns (StreamResponse) {}
+    rpc BulkGet (google.protobuf.Empty) returns (stream Person) {}
 }

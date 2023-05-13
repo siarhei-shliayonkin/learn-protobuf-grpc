@@ -2,6 +2,7 @@ package person
 
 import (
 	"context"
+	"io"
 	"log"
 
 	"google.golang.org/grpc/codes"
@@ -62,4 +63,25 @@ func (s *service) Get(ctx context.Context, in *pb.PersonRequest) (*pb.Person, er
 func (s *service) Delete(ctx context.Context, in *pb.PersonRequest) (*emptypb.Empty, error) {
 	_ = s.storageMap.Delete(in.FirstName)
 	return &emptypb.Empty{}, nil
+}
+
+// BulkAdd adds multiple persons to the server via the PersonService_BulkAddServer stream.
+//
+// s: the service struct that has the implementation of the PersonServiceServer interface.
+// PersonService_BulkAddServer: the server stream that receives the persons to be added.
+// error: returns an error if the server fails to add the persons.
+func (s *service) BulkAdd(stream pb.PersonService_BulkAddServer) error {
+	for {
+		data, err := stream.Recv()
+		if err == io.EOF {
+			log.Println("EOF")
+			return stream.SendAndClose(&pb.StreamResponse{Message: "Data received!"})
+		}
+		if err != nil {
+			return err
+		}
+
+		s.storageMap.Add(data.GetFirstName(), data.GetLastName())
+		log.Printf("Added %s %s\n", data.GetFirstName(), data.GetLastName())
+	}
 }

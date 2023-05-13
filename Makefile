@@ -2,7 +2,7 @@ SRC_DIR  := $(shell pwd)
 PKG_LIST := ./pkg/...
 PROTO_DIR := pkg/proto
 APP_SERVER := ./cmd/server/...
-# APP_CLIENT := ./cmd/client/...
+APP_CLIENT := ./cmd/client/...
 BIN_DIR := ./bin
 
 PROTOBUF_ARGS =	 -I=. -I=$(SRC_DIR)/vendor -I=$(GOPATH)/src/github.com/googleapis/googleapis
@@ -44,12 +44,17 @@ bin:
 	@mkdir -p $(BIN_DIR)
 
 .PHONY: build
-build: bin server
+build: bin build-server build-client
 
-.PHONY: server
-server:
+.PHONY: build-server
+build-server:
 	@echo "building server"
 	@go build -o $(BIN_DIR)/server $(APP_SERVER)
+
+.PHONY: build-client
+build-client:
+	@echo "building client"
+	@go build -o $(BIN_DIR)/client $(APP_CLIENT)
 
 .PHONY: test
 test:
