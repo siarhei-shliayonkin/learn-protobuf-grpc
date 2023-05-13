@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
@@ -12,23 +11,24 @@ import (
 	pb "github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/proto"
 )
 
-func TestSvcAdd(t *testing.T) {
+func TestSvc(t *testing.T) {
 	ctx := context.Background()
 	protoExpected := &pb.Person{FirstName: "John", LastName: "Doe"}
-
+	// Add
 	protoActual, err := client.Add(ctx, protoExpected)
 	require.NoError(t, err)
 	require.True(t, proto.Equal(protoExpected, protoActual))
-}
-
-func TestSvcList(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	client.Add(ctx, &pb.Person{FirstName: "John", LastName: "Doe"})
-
-	protoActual, err := client.List(ctx, &emptypb.Empty{})
-	p := protoActual.Person
+	// Get
+	protoActual, err = client.Get(ctx, &pb.PersonRequest{FirstName: "John"})
 	require.NoError(t, err)
+	require.True(t, proto.Equal(protoExpected, protoActual))
+	// List
+	personList, err := client.List(ctx, &emptypb.Empty{})
+	require.NoError(t, err)
+	p := personList.Person
 	require.Equal(t, 1, len(p))
 	require.Equal(t, "John", p[0].FirstName)
+	// Delete
+	_, err = client.Delete(ctx, &pb.PersonRequest{FirstName: "John"})
+	require.NoError(t, err)
 }

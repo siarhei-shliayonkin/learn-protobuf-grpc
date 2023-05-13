@@ -7,6 +7,7 @@ type Storage interface {
 	Add(key, value string) string
 	Get(key string) (string, error)
 	List() ItemType
+	Delete(key string) error
 }
 
 type storage struct {
@@ -42,4 +43,9 @@ func (s *storage) List() ItemType {
 		copied[k] = v
 	}
 	return copied
+}
+
+func (s *storage) Delete(key string) error {
+	delete(s.s, key)
+	return nil
 }

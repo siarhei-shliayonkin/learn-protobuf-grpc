@@ -20,8 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PersonService_Add_FullMethodName  = "/person.PersonService/Add"
-	PersonService_List_FullMethodName = "/person.PersonService/List"
+	PersonService_Add_FullMethodName    = "/person.PersonService/Add"
+	PersonService_Get_FullMethodName    = "/person.PersonService/Get"
+	PersonService_List_FullMethodName   = "/person.PersonService/List"
+	PersonService_Delete_FullMethodName = "/person.PersonService/Delete"
 )
 
 // PersonServiceClient is the client API for PersonService service.
@@ -29,7 +31,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PersonServiceClient interface {
 	Add(ctx context.Context, in *Person, opts ...grpc.CallOption) (*Person, error)
+	Get(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*Person, error)
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PersonList, error)
+	Delete(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type personServiceClient struct {
@@ -49,9 +53,27 @@ func (c *personServiceClient) Add(ctx context.Context, in *Person, opts ...grpc.
 	return out, nil
 }
 
+func (c *personServiceClient) Get(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*Person, error) {
+	out := new(Person)
+	err := c.cc.Invoke(ctx, PersonService_Get_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *personServiceClient) List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PersonList, error) {
 	out := new(PersonList)
 	err := c.cc.Invoke(ctx, PersonService_List_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *personServiceClient) Delete(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, PersonService_Delete_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +85,9 @@ func (c *personServiceClient) List(ctx context.Context, in *emptypb.Empty, opts 
 // for forward compatibility
 type PersonServiceServer interface {
 	Add(context.Context, *Person) (*Person, error)
+	Get(context.Context, *PersonRequest) (*Person, error)
 	List(context.Context, *emptypb.Empty) (*PersonList, error)
+	Delete(context.Context, *PersonRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedPersonServiceServer()
 }
 
@@ -74,8 +98,14 @@ type UnimplementedPersonServiceServer struct {
 func (UnimplementedPersonServiceServer) Add(context.Context, *Person) (*Person, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
+func (UnimplementedPersonServiceServer) Get(context.Context, *PersonRequest) (*Person, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
 func (UnimplementedPersonServiceServer) List(context.Context, *emptypb.Empty) (*PersonList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedPersonServiceServer) Delete(context.Context, *PersonRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedPersonServiceServer) mustEmbedUnimplementedPersonServiceServer() {}
 
@@ -108,6 +138,24 @@ func _PersonService_Add_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PersonService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PersonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PersonServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PersonService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PersonServiceServer).Get(ctx, req.(*PersonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PersonService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -126,6 +174,24 @@ func _PersonService_List_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PersonService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PersonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PersonServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PersonService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PersonServiceServer).Delete(ctx, req.(*PersonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PersonService_ServiceDesc is the grpc.ServiceDesc for PersonService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -138,8 +204,16 @@ var PersonService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PersonService_Add_Handler,
 		},
 		{
+			MethodName: "Get",
+			Handler:    _PersonService_Get_Handler,
+		},
+		{
 			MethodName: "List",
 			Handler:    _PersonService_List_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _PersonService_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

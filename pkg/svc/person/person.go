@@ -2,6 +2,7 @@ package person
 
 import (
 	"context"
+	"log"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,4 +48,18 @@ func (s *service) List(ctx context.Context, empty *emptypb.Empty) (*pb.PersonLis
 	}
 
 	return pl, status.Error(codes.OK, "OK")
+}
+
+func (s *service) Get(ctx context.Context, in *pb.PersonRequest) (*pb.Person, error) {
+	v, err := s.storageMap.Get(in.FirstName)
+	if err != nil {
+		log.Println("can not get item from storage: ", err)
+		return nil, err
+	}
+	return &pb.Person{FirstName: in.FirstName, LastName: v}, nil
+}
+
+func (s *service) Delete(ctx context.Context, in *pb.PersonRequest) (*emptypb.Empty, error) {
+	_ = s.storageMap.Delete(in.FirstName)
+	return &emptypb.Empty{}, nil
 }
