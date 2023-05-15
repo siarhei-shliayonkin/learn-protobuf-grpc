@@ -66,11 +66,13 @@ func (s *service) Delete(ctx context.Context, in *pb.PersonRequest) (*emptypb.Em
 }
 
 // BulkAdd adds multiple persons to the server via the PersonService_BulkAddServer stream.
+// (Client-side RPC streaming)
 //
 // s: the service struct that has the implementation of the PersonServiceServer interface.
 // PersonService_BulkAddServer: the server stream that receives the persons to be added.
 // error: returns an error if the server fails to add the persons.
 func (s *service) BulkAdd(stream pb.PersonService_BulkAddServer) error {
+	log.Println("receive stream")
 	for {
 		data, err := stream.Recv()
 		if err == io.EOF {
@@ -84,4 +86,27 @@ func (s *service) BulkAdd(stream pb.PersonService_BulkAddServer) error {
 		s.storageMap.Add(data.GetFirstName(), data.GetLastName())
 		log.Printf("Added %s %s\n", data.GetFirstName(), data.GetLastName())
 	}
+}
+
+// BulkGet sends a stream of Person objects to the client.
+// (Server-side RPC streaming)
+//
+// It takes an empty request and a stream, and returns an error.
+// The function loops through a list of items, and for each key-value
+// pair it sends a new Person object with the first name set to the key
+// and the last name to the value.
+func (s *service) BulkGet(in *emptypb.Empty, stream pb.PersonService_BulkGetServer) error {
+	log.Println("send stream")
+	itemsMap := s.storageMap.List()
+
+	for k, v := range itemsMap {
+		if err := stream.Send(&pb.Person{
+			FirstName: k,
+			LastName:  v,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
