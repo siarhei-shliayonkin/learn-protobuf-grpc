@@ -1,5 +1,8 @@
 package main
 
+// The client code for the gRPC client. Contains the code for streaming on both
+// client-side and server-side.
+
 import (
 	"context"
 	"fmt"
@@ -13,14 +16,20 @@ import (
 	pb "github.com/siarhei-shliayonkin/learn-protobuf-grpc/pkg/proto"
 )
 
-// The client code for the gRPC client. Contains the code for streaming on both
-// client-side and server-side.
-
 const svcAddress = ":8090"
+
+var (
+	dialOpts = []grpc.DialOption{
+		grpc.WithInsecure(),
+	}
+	callOpts = []grpc.CallOption{
+		// grpc.UseCompressor(gzip.Name),
+	}
+)
 
 func main() {
 	// Create a client connection to the server.
-	conn, err := grpc.Dial(svcAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(svcAddress, dialOpts...)
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
@@ -31,10 +40,11 @@ func main() {
 
 	// send to server
 	_ = bulkAdd(client)
+
 	time.Sleep(2 * time.Second)
+	fmt.Println("--")
 
 	// receive from server
-	fmt.Println("--")
 	_ = bulkGet(client)
 }
 
@@ -56,7 +66,7 @@ func bulkAdd(client pb.PersonServiceClient) error {
 	defer cancel()
 
 	// Create a stream by invoking the client.
-	stream, err = client.BulkAdd(ctx)
+	stream, err = client.BulkAdd(ctx, callOpts...)
 	if err != nil {
 		log.Printf("error calling BulkAdd: %v", err)
 		return err
@@ -110,7 +120,7 @@ func bulkGet(client pb.PersonServiceClient) error {
 	defer cancel()
 
 	// Call the BulkGet function on the client.
-	stream, err = client.BulkGet(ctx, &emptypb.Empty{})
+	stream, err = client.BulkGet(ctx, &emptypb.Empty{}, callOpts...)
 	if err != nil {
 		log.Printf("error calling BulkGet: %v", err)
 		return err

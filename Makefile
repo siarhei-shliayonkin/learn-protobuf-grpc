@@ -9,6 +9,7 @@ PROTOBUF_ARGS =	 -I=. -I=$(SRC_DIR)/vendor -I=$(GOPATH)/src/github.com/googleapi
 PROTOBUF_ARGS += --go_out=. --go_opt paths=source_relative
 PROTOBUF_ARGS += --go-grpc_out=. --go-grpc_opt paths=source_relative
 PROTOBUF_ARGS += --grpc-gateway_out=. --grpc-gateway_opt paths=source_relative
+PROTOBUF_ARGS += --swagger_out=logtostderr=true:.
 
 .PHONY: all
 all: proto vendor lint build test
